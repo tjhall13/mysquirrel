@@ -21,5 +21,12 @@
   "bugs": {
     "url": "https://github.com/tjhall13/mysquirrel/issues"
   },
-  "homepage": "https://github.com/tjhall13/mysquirrel#readme"
+  "homepage": "https://github.com/tjhall13/mysquirrel#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.3"
+  },
+  "dependencies": {
+    "mysql": "^2.9.0"
+  }
 }
