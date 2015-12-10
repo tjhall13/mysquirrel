@@ -3,12 +3,19 @@ module.exports = function(grunt) {
 		jshint: {
 			options: { },
 			development: {
-				src: ['index.js', 'lib/**/*.js', 'Gruntfile.js']
+				src: ['index.js', 'lib/**/*.js', 'Gruntfile.js', 'test/**/*.js']
+			}
+		},
+		nodeunit: {
+			options: { },
+			development: {
+				src: ['test/**/*.js', '!test/mock/**/*.js']
 			}
 		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-nodeunit');
 
-	grunt.registerTask('default', ['jshint']);
+	grunt.registerTask('default', ['jshint', 'nodeunit']);
 };

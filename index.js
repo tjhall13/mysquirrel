@@ -5,7 +5,9 @@ var url			= require('url'),
 	Schema		= require('./lib/schema'),
 	Model		= require('./lib/model');
 
-function MySquirrel(arg) {
+var queue = [];
+
+function MySquirrel(arg, callback) {
 	var self = this;
 	var _connection;
 
@@ -14,6 +16,13 @@ function MySquirrel(arg) {
 		_connection = mysql.createConnection(arg);
 		if(_connection) {
 			_connection.connect(function(err) {
+				if(callback) {
+					if(err) {
+						callback.call(null);
+					} else {
+						callback.call(self);
+					}
+				}
 				if(err) {
 					self.emit('error', err);
 				} else {
@@ -25,23 +34,20 @@ function MySquirrel(arg) {
 		throw new Error('Unknown protocol:' + params.protocol.substr(0, params.protocol.length - 1));
 	}
 
-	function exportModel() {
-		
-	}
-
-	function importModel() {
+	function importModel(name) {
 		
 	}
 
 	this.model = function(name, schema) {
-		if(schema) {
-			return exportModel(name, schema);
-		} else {
-			return importModel(name);
-		}
+		return Model(_connection, name, schema);
+	};
+
+	this.end = function() {
+		_connection.end(function(err) {
+			self.emit('close', err);
+		});
 	};
 }
-
 util.inherits(MySquirrel, EventEmitter);
 
 MySquirrel.createConnection = function(arg) {
@@ -49,13 +55,37 @@ MySquirrel.createConnection = function(arg) {
 };
 
 MySquirrel.connect = function(arg) {
-	MySquirrel.connection = new MySquirrel(arg);
+	MySquirrel.connection = new MySquirrel(arg, function() {
+		if(this) {
+			queue.forEach(function(callback) {
+				this[callback.func].apply(this, callback.args);
+			});
+		}
+	});
+};
+
+MySquirrel.end = function() {
+	if(MySquirrel.connection) {
+		MySquirrel.connection.end();
+	} else {
+		queue.push({
+			func: 'end',
+			args: []
+		});
+	}
 };
 
 MySquirrel.Schema = Schema;
 
 MySquirrel.model = function() {
-	return MySquirrel.connection.model.apply(MySquirrel.connection, arguments);
+	if(MySquirrel.connection) {
+		return MySquirrel.connection.model.apply(MySquirrel.connection, arguments);
+	} else {
+		queue.push({
+			func: 'model',
+			args: arguments
+		});
+	}
 };
 
 module.exports = MySquirrel;
