@@ -1,6 +1,3 @@
 # node
 node_modules/
 .npm*
-
-# test
-test/index.js
