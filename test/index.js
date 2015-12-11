@@ -4,6 +4,7 @@ var proxyquire	= require('proxyquire'),
 var mysquirrel	= proxyquire('../index.js', {
 	'mysql': mysql.proxy
 });
+
 var Schema		= mysquirrel.Schema;
 
 function equal(test) {
@@ -20,12 +21,12 @@ var Account, Person;
 
 module.exports = {
 	setUp: function(done) {
-		mysql.mock(null, 'Connection', 'connect').callback(null);
+		mysql.mock(null, 'connect').callback(null);
 		mysquirrel.connect('mysql://user:pass@localhost/test');
 		done();
 	},
 	tearDown: function(done) {
-		mysql.mock(null, 'Connection', 'end');
+		mysql.mock(null, 'end');
 		mysquirrel.end();
 
 		Account = undefined;
@@ -34,7 +35,7 @@ module.exports = {
 	},
 	scheme: function(test) {
 		test.expect(4);
-		var query = mysql.mock(equal(test), 'Connection', 'query');
+		var query = mysql.mock(equal(test), 'query');
 
 		var account = new Schema({
 			value: Number
@@ -60,7 +61,7 @@ module.exports = {
 	},
 	crud: {
 		setUp: function(done) {
-			mysql.mock(null, 'Connection', 'query');
+			mysql.mock(null, 'query');
 			var account = new Schema({
 				value: Number
 			});
@@ -81,7 +82,7 @@ module.exports = {
 		},
 		create: function(test) {
 			test.expect(7);
-			var query = mysql.mock(equal(test), 'Connection', 'query');
+			var query = mysql.mock(equal(test), 'query');
 			query.expects(
 				'INSERT INTO Person SET ?;',
 				{ name: 'Trevor Hall', age: 22 }
@@ -98,7 +99,7 @@ module.exports = {
 		retrieve: {
 			find: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'SELECT ?? FROM Person WHERE `name` = ?;',
@@ -115,7 +116,7 @@ module.exports = {
 			},
 			findOne: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'SELECT ?? FROM Person WHERE `name` = ? LIMIT 1;',
@@ -132,7 +133,7 @@ module.exports = {
 			},
 			findById: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'SELECT ?? FROM Person WHERE `_id` = ? LIMIT 1;',
@@ -151,7 +152,7 @@ module.exports = {
 		update: {
 			save: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				var person = new Person({
 					_id: 1,
@@ -171,7 +172,7 @@ module.exports = {
 			},
 			findOneAndUpdate: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'UPDATE Person SET ? WHERE `name` = ? LIMIT 1;',
@@ -188,7 +189,7 @@ module.exports = {
 			},
 			findByIdAndUpdate: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'UPDATE Person SET ? WHERE `_id` = ? LIMIT 1;',
@@ -203,7 +204,7 @@ module.exports = {
 			},
 			update: function(test) {
 				test.expect(4);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'UPDATE Person SET ? WHERE `name` = ?;',
@@ -223,7 +224,7 @@ module.exports = {
 		delete: {
 			'.remove': function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'DELETE FROM Person WHERE `name` = ?;',
@@ -238,7 +239,7 @@ module.exports = {
 			},
 			'#remove': function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				var person = new Person({
 					_id: 1,
@@ -257,7 +258,7 @@ module.exports = {
 			},
 			findOneAndRemove: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'DELETE FROM Person WHERE `name` = ? LIMIT 1;',
@@ -272,7 +273,7 @@ module.exports = {
 			},
 			findByIdAndRemove: function(test) {
 				test.expect(3);
-				var query = mysql.mock(equal(test), 'Connection', 'query');
+				var query = mysql.mock(equal(test), 'query');
 
 				query.expects(
 					'DELETE FROM Person WHERE `_id` = ? LIMIT 1;',

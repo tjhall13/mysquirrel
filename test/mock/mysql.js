@@ -1,6 +1,6 @@
 var Xerox = require('xerox');
 
-var templates = { Connection: new Xerox('Connection') };
+var Connection = new Xerox('Connection');
 
 module.exports = {
 	proxy: {
@@ -9,7 +9,7 @@ module.exports = {
 			return new Xerox.documents.Connection(arg);
 		}
 	},
-	mock: function(test, name, method) {
-		return templates[name].copy(test, method);
+	mock: function(test, method) {
+		return Connection.copy(test, method);
 	}
 };
