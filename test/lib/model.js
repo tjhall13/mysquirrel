@@ -6,7 +6,12 @@ var Xerox		= require('xerox'),
 var mysql = new Xerox('Connection');
 var description = new Xerox('Schema');
 
-var Model = proxyquire('../../lib/model.js', {
+function PATH(file) {
+	var folder = process.env.MYSQUIRREL_COV ? 'lib-cov/' : 'lib/';
+	return '../../' + folder + file;
+}
+
+var Model = proxyquire(PATH('model.js'), {
 	'./query.js': query.proxy,
 	'./promise.js': promise.proxy
 });

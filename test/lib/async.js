@@ -1,4 +1,9 @@
-var async = require('../../lib/async.js');
+function PATH(file) {
+	var folder = process.env.MYSQUIRREL_COV ? 'lib-cov/' : 'lib/';
+	return '../../' + folder + file;
+}
+
+var async = require(PATH('async.js'));
 
 module.exports = {
 	forEachAsync: function(test) {
