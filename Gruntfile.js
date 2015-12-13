@@ -68,8 +68,8 @@ module.exports = function(grunt) {
 		'jshint:all',
 		'instrument:build',
 		'env:build',
-		'nodeunit:build',
-		'coveralls:build',
+//		'nodeunit:build',
+//		'coveralls:build',
 		'sloc:all'
 	]);
 };
