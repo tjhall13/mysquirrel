@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "coverage": "MYSQUIRREL_COV=1 nodeunit --reporter=lcov test/lib/ > .tmp/mysquirrel.lcov",
-    "publish": "cat .tmp/mysquirrel.lcov | COVERALLS_SERVICE_NAME=grunt COVERALLS_REPO_TOKE=bq0BlEPR7JMTSZlJs7eraNNvk3CSa4Res coveralls"
+    "publish": "cat .tmp/mysquirrel.lcov | COVERALLS_SERVICE_NAME=grunt COVERALLS_REPO_TOKEN=bq0BlEPR7JMTSZlJs7eraNNvk3CSa4Res coveralls"
   },
   "repository": {
     "type": "git",
