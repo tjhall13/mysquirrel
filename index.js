@@ -2,8 +2,8 @@ var url			= require('url'),
 	util		= require('util'),
 	EventEmitter= require('events'),
 	mysql		= require('mysql'),
-	Schema		= require('./lib/schema'),
-	Model		= require('./lib/model');
+	Schema		= require('./lib/schema.js'),
+	Model		= require('./lib/model.js');
 
 var queue = [];
 

@@ -5,7 +5,7 @@ var mysquirrel	= proxyquire('../index.js', {
 	'mysql': mysql.proxy
 });
 
-var Schema		= mysquirrel.Schema;
+var Schema = mysquirrel.Schema;
 
 function equal(test) {
 	return function(expected, actual, msg) {

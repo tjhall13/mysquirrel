@@ -26,6 +26,9 @@
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.11.3",
     "grunt-contrib-nodeunit": "^0.4.1",
+    "grunt-instrument": "^0.1.0",
+    "grunt-coveralls": "^1.0.0",
+    "grunt-env": "^0.4.4",
     "grunt-sloc": "^0.6.0",
     "proxyquire": "^1.7.3",
     "xerox": "^0.1.0"

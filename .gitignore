@@ -1,3 +1,7 @@
 # node
 node_modules/
 .npm*
+
+# build
+.tmp/
+lib-cov/
