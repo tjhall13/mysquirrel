@@ -1,0 +1,5 @@
+{
+  "name": "MySquirrel",
+  "report": ".tmp/mysquirrel.lcov",
+  "port": "8080"
+}

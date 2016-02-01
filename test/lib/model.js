@@ -104,60 +104,244 @@ module.exports = {
 					value: 10
 				});
 			},
-			find: function(test) {
-				test.expect(14);
-				var verify = instance(equal(test));
-				query.mock(equal(test), '@construct')
-					.expects(connection, 'Test');
-				query.mock(equal(test), 'select')
-					.expects('_id').then()
-					.expects('value').then()
-					.expects('name');
-				query.mock(equal(test), 'where')
-					.expects('name', 'John Doe');
-				query.mock(equal(test), 'exec')
-					.callback(null, [
-						{ _id: 1, value: 10, name: 'John Doe' },
-						{ _id: 2, value: 20, name: 'John Doe' }
-					]);
-
-				Test.find({ name: 'John Doe' }, function(err, results) {
-					test.equal(null, err);
-					[
-						{ id: 1, value: 10, name: 'John Doe' },
-						{ id: 2, value: 20, name: 'John Doe' }
-					].forEach(function(value, index) {
-						verify(value, results[index]);
+			find: {
+				none: function(test) {
+					var verify = instance(equal(test));
+					query.mock(equal(test), '@construct')
+						.expects(connection, 'Test');
+					query.mock(equal(test), 'select')
+						.expects('_id').then()
+						.expects('value').then()
+						.expects('name');
+					query.mock(equal(test), 'where')
+						.expects('name', 'John Doe');
+					query.mock(null, 'exec')
+						.callback(null, [
+							{ _id: 1, value: 10, name: 'John Doe' },
+							{ _id: 2, value: 20, name: 'John Doe' },
+							{ _id: 3, value: 30, name: 'Jane Doe' }
+						]);
+					Test.find(function(err, results) {
+						test.equal(null, err);
+						[
+							{ id: 1, value: 10, name: 'John Doe' },
+							{ id: 2, value: 20, name: 'John Doe' },
+							{ id: 3, value: 30, name: 'Jane Doe' }
+						].forEach(function(value, index) {
+							verify(value, results[index]);
+						});
+						test.done();
 					});
-					test.done();
-				});
-			},
-			findOne: function(test) {
-				test.expect(12);
-				var verify = instance(equal(test));
-				query.mock(equal(test), '@construct')
-					.expects(connection, 'Test');
-				query.mock(equal(test), 'select')
-					.expects('_id').then()
-					.expects('value').then()
-					.expects('name');
-				query.mock(equal(test), 'where')
-					.expects('name', 'John Doe');
-				query.mock(equal(test), 'limit')
-					.expects(1);
-				query.mock(equal(test), 'exec')
-					.callback(null, [
-						{ _id: 1, value: 10, name: 'John Doe' }
-					]);
+				},
+				conditions: {
+					success: function(test) {
+						test.expect(14);
+						var verify = instance(equal(test));
+						query.mock(equal(test), '@construct')
+							.expects(connection, 'Test');
+						query.mock(equal(test), 'select')
+							.expects('_id').then()
+							.expects('value').then()
+							.expects('name');
+						query.mock(equal(test), 'where')
+							.expects('name', 'John Doe');
+						query.mock(null, 'exec')
+							.callback(null, [
+								{ _id: 1, value: 10, name: 'John Doe' },
+								{ _id: 2, value: 20, name: 'John Doe' }
+							]);
 
-				Test.findOne({ name: 'John Doe' }, function(err, result) {
-					test.equal(null, err);
-					verify(
-						{ id: 1, value: 10, name: 'John Doe' },
-						result
-					);
+						Test.find({ name: 'John Doe' }, function(err, results) {
+							test.equal(null, err);
+							[	
+								{ id: 1, value: 10, name: 'John Doe' },
+								{ id: 2, value: 20, name: 'John Doe' }
+							].forEach(function(value, index) {
+								verify(value, results[index]);
+							});
+							test.done();
+						});
+					},
+					error: function(test) {
+						test.expect(8);
+						var expected = new Error('Test');
+						query.mock(equal(test), '@construct')
+							.expects(connection, 'Test');
+						query.mock(equal(test), 'select')
+							.expects('_id').then()
+							.expects('value').then()
+							.expects('name');
+						query.mock(equal(test), 'where')
+							.expects('name', 'John Doe');
+						query.mock(null, 'exec')
+							.callback(expected, null);
+
+						Test.find({ name: 'John Doe' }, function(err, results) {
+							test.deepEqual(expected, err);
+							test.done();
+						});
+					}
+				},
+				projection: {
+					string: function(test) {
+						test.expect(11);
+						var verify = instance(equal(test));
+						query.mock(equal(test), '@construct')
+							.expects(connection, 'Test');
+						query.mock(equal(test), 'select')
+							.expects('_id').then()
+							.expects('name');
+						query.mock(equal(test), 'where')
+							.expects('name', 'John Doe');
+						query.mock(null, 'exec')
+							.callback(null, [
+								{ _id: 1, name: 'John Doe' },
+								{ _id: 2, name: 'John Doe' }
+							]);
+
+						Test.find({ name: 'John Doe' }, 'id name', function(err, results) {
+							test.equal(null, err);
+							[	
+								{ id: 1, name: 'John Doe' },
+								{ id: 2, name: 'John Doe' }
+							].forEach(function(value, index) {
+								verify(value, results[index]);
+							});
+							test.done();
+						});
+					},
+					array: function(test) {
+						test.expect(11);
+						var verify = instance(equal(test));
+						query.mock(equal(test), '@construct')
+							.expects(connection, 'Test');
+						query.mock(equal(test), 'select')
+							.expects('_id').then()
+							.expects('name');
+						query.mock(equal(test), 'where')
+							.expects('name', 'John Doe');
+						query.mock(null, 'exec')
+							.callback(null, [
+								{ _id: 1, name: 'John Doe' },
+								{ _id: 2, name: 'John Doe' }
+							]);
+
+						Test.find({ name: 'John Doe' }, [ '_id', 'name' ], function(err, results) {
+							test.equal(null, err);
+							[	
+								{ id: 1, name: 'John Doe' },
+								{ id: 2, name: 'John Doe' }
+							].forEach(function(value, index) {
+								verify(value, results[index]);
+							});
+							test.done();
+						});
+					},
+					description: function(test) {
+						test.expect(11);
+						var verify = instance(equal(test));
+						query.mock(equal(test), '@construct')
+							.expects(connection, 'Test');
+						query.mock(equal(test), 'select')
+							.expects('_id').then()
+							.expects('name');
+						query.mock(equal(test), 'where')
+							.expects('name', 'John Doe');
+						query.mock(null, 'exec')
+							.callback(null, [
+								{ _id: 1, name: 'John Doe' },
+								{ _id: 2, name: 'John Doe' }
+							]);
+
+						Test.find({ name: 'John Doe' }, { _id: 1, name: 1 }, function(err, results) {
+							test.equal(null, err);
+							[	
+								{ id: 1, name: 'John Doe' },
+								{ id: 2, name: 'John Doe' }
+							].forEach(function(value, index) {
+								verify(value, results[index]);
+							});
+							test.done();
+						});
+					}
+				},
+				options: function(test) {
 					test.done();
-				});
+				}
+			},
+			findOne:{
+				success: function(test) {
+					test.expect(12);
+					var verify = instance(equal(test));
+					query.mock(equal(test), '@construct')
+						.expects(connection, 'Test');
+					query.mock(equal(test), 'select')
+						.expects('_id').then()
+						.expects('value').then()
+						.expects('name');
+					query.mock(equal(test), 'where')
+						.expects('name', 'John Doe');
+					query.mock(equal(test), 'limit')
+						.expects(1);
+					query.mock(null, 'exec')
+						.callback(null, [
+							{ _id: 1, value: 10, name: 'John Doe' }
+						]);
+
+					Test.findOne({ name: 'John Doe' }, function(err, result) {
+						test.equal(null, err);
+						verify(
+							{ id: 1, value: 10, name: 'John Doe' },
+							result
+						);
+						test.done();
+					});
+				},
+				error: function(test) {
+					test.expect(9);
+					var expected = new Error('Test');
+					query.mock(equal(test), '@construct')
+						.expects(connection, 'Test');
+					query.mock(equal(test), 'select')
+						.expects('_id').then()
+						.expects('value').then()
+						.expects('name');
+					query.mock(equal(test), 'where')
+						.expects('name', 'John Doe');
+					query.mock(equal(test), 'limit')
+						.expects(1);
+					query.mock(null, 'exec')
+						.callback(expected, null);
+
+					Test.findOne({ name: 'John Doe' }, function(err, result) {
+						test.deepEqual(expected, err);
+						test.done();
+					});
+				},
+				query: function(test) {
+					test.expect(10);
+					var verify = instance(equal(test));
+					query.mock(equal(test), '@construct')
+						.expects(connection, 'Test')
+						.sets('_id', 1);
+					query.mock(equal(test), 'select')
+						.expects('_id').then()
+						.expects('value').then()
+						.expects('name');
+					query.mock(equal(test), 'where')
+						.expects('name', 'John Doe');
+					query.mock(equal(test), 'limit')
+						.expects(1);
+					query.mock(null, 'exec')
+						.callback(null, [
+							{ _id: 1, value: 10, name: 'John Doe' }
+						]);
+
+					var output = Test.findOne({ name: 'John Doe' });
+					test.ok(output instanceof Xerox.documents.Query.Select);
+					test.equal(output._id, 1);
+					test.done();
+				}
 			},
 			findById: function(test) {
 				test.expect(12);
@@ -322,75 +506,192 @@ module.exports = {
 		},
 		member: {
 			save: {
-				insert: function(test) {
-					test.expect(9);
-					var verify = instance(equal(test));
-					query.mock(equal(test), '@construct')
-						.expects(connection, 'Test');
-					query.mock(equal(test), 'column')
-						.expects('value', 30).then()
-						.expects('name', 'John Jones');
-					query.mock(null, 'exec')
-						.callback(null, { insertId: 3 });
-					promise.mock(verify, 'fulfill')
-						.expects({ _id: 3, value: 30, name: 'John Jones' })
-						.calls(function() {
-							test.done();
-						});
+				insert: {
+					local: {
+						success: function(test) {
+							test.expect(9);
+							var verify = instance(equal(test));
+							query.mock(equal(test), '@construct')
+								.expects(connection, 'Test');
+							query.mock(equal(test), 'column')
+								.expects('value', 30).then()
+								.expects('name', 'John Jones');
+							query.mock(null, 'exec')
+								.callback(null, { insertId: 3 });
+							promise.mock(verify, 'fulfill')
+								.expects({ _id: 3, value: 30, name: 'John Jones' })
+								.calls(function() {
+									test.done();
+								});
 
-					var item = new Test({
-						value: 30,
-						name: 'John Jones'
-					});
-					item.save();
+							var item = new Test({
+								value: 30,
+								name: 'John Jones'
+							});
+							item.save();
+						},
+						error: function(test) {
+							test.expect(7);
+							var err = new Error('Test');
+							query.mock(equal(test), '@construct')
+								.expects(connection, 'Test');
+							query.mock(equal(test), 'column')
+								.expects('value', 30).then()
+								.expects('name', 'John Jones');
+							query.mock(null, 'exec')
+								.callback(err, null);
+							promise.mock(equal(test), 'error')
+								.expects(err)
+								.calls(function() {
+									test.done();
+								});
+
+							var item = new Test({
+								value: 30,
+								name: 'John Jones'
+							});
+							item.save();
+						}
+					},
+					foreign: {
+						success: function(test) {
+							test.done();
+						},
+						error: function(test) {
+							test.done();
+						}
+					},
+					array: function(test) {
+						test.done();
+					}
 				},
-				update: function(test) {
-					test.expect(9);
+				update:{
+					local: {
+						success: function(test) {
+							test.expect(9);
+							var verify = instance(equal(test));
+							query.mock(equal(test), '@construct')
+								.expects(connection, 'Test');
+							query.mock(equal(test), 'column')
+								.expects('value', 100);
+							query.mock(equal(test), 'where')
+								.expects('_id', 1);
+							query.mock(null, 'exec')
+								.callback(null, { affectedRows: 1 });
+							promise.mock(verify, 'fulfill')
+								.expects({ _id: 1, value: 100, name: 'John Doe' })
+								.calls(function() {
+									test.done();
+								});
+
+							var item = new Test({
+								_id: 1,
+								value: 10,
+								name: 'John Doe'
+							});
+							item.value = 100;
+							item.save();
+						},
+						error: function(test) {
+							test.expect(7);
+							var err = new Error('Test');
+							query.mock(equal(test), '@construct')
+								.expects(connection, 'Test');
+							query.mock(equal(test), 'column')
+								.expects('value', 100);
+							query.mock(equal(test), 'where')
+								.expects('_id', 1);
+							query.mock(null, 'exec')
+								.callback(err, null);
+							promise.mock(equal(test), 'error')
+								.expects(err)
+								.calls(function() {
+									test.done();
+								});
+
+							var item = new Test({
+								_id: 1,
+								value: 10,
+								name: 'John Jones'
+							});
+							item.value = 100;
+							item.save();
+						}
+					},
+					foreign: {
+						success: function(test) {
+							test.done();
+						},
+						error: function(test) {
+							test.done();
+						}
+					},
+					array: function(test) {
+						test.done();
+					}
+				}
+			},
+			remove: {
+				success: function(test) {
+					test.expect(8);
 					var verify = instance(equal(test));
 					query.mock(equal(test), '@construct')
 						.expects(connection, 'Test');
-					query.mock(equal(test), 'column')
-						.expects('value', 100);
 					query.mock(equal(test), 'where')
 						.expects('_id', 1);
 					query.mock(null, 'exec')
 						.callback(null, { affectedRows: 1 });
-					promise.mock(verify, 'fulfill')
-						.expects({ _id: 1, value: 100, name: 'John Doe' })
-						.calls(function() {
-							test.done();
-						});
 
 					var item = new Test({
 						_id: 1,
 						value: 10,
 						name: 'John Doe'
 					});
-					item.value = 100;
-					item.save();
-				}
-			},
-			remove: function(test) {
-				test.expect(8);
-				var verify = instance(equal(test));
-				query.mock(equal(test), '@construct')
-					.expects(connection, 'Test');
-				query.mock(equal(test), 'where')
-					.expects('_id', 1);
-				query.mock(null, 'exec')
-					.callback(null, { affectedRows: 1 });
+					item.remove(function(err, self) {
+						test.equal(null, err);
+						test.ok(!self.id);
+						verify({ value: 10, name: 'John Doe' }, self);
+						test.done();
+					});
+				},
+				query: function(test) {
+					test.expect(6);
+					query.mock(equal(test), '@construct')
+						.expects(connection, 'Test')
+						.sets('_id', 1);
+					query.mock(equal(test), 'where')
+						.expects('_id', 1);
 
-				var item = new Test({
-					_id: 1,
-					value: 10,
-					name: 'John Doe'
-				});
-				item.remove(function(err, self) {
-					test.equal(null, err);
-					test.ok(!self.id);
-					verify({ value: 10, name: 'John Doe' }, self);
+					var item = new Test({
+						_id: 1,
+						value: 10,
+						name: 'John Doe'
+					});
+					var output = item.remove();
+					test.ok(output instanceof query.proxy.Delete);
+					test.equal(output._id, 1);
 					test.done();
-				});
+				},
+				error: function(test) {
+					test.expect(5);
+					var expected = new Error('Test');
+					query.mock(equal(test), '@construct')
+						.expects(connection, 'Test');
+					query.mock(equal(test), 'where')
+						.expects('_id', 1);
+					query.mock(null, 'exec')
+						.callback(expected, null);
+
+					var item = new Test({
+						_id: 1,
+						value: 10,
+						name: 'John Doe'
+					});
+					item.remove(function(err, self) {
+						test.equal(expected, err);
+						test.done();
+					});
+				}
 			}
 		}
 	}

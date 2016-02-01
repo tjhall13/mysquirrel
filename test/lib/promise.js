@@ -7,16 +7,31 @@ var Promise = require(PATH('promise.js'));
 
 module.exports = {
 	error: {
-		cast: function(test) {
-			test.expect(2);
-			var promise = new Promise(function(err, value) {
-				test.equal('test error', err.message);
-				test.equal(null, value);
-				test.done();
-			});
-			process.nextTick(function() {
-				promise.error('test error');
-			});
+		cast: {
+			string: function(test) {
+				test.expect(2);
+				var promise = new Promise(function(err, value) {
+					test.equal('test error', err.message);
+					test.equal(null, value);
+					test.done();
+				});
+				process.nextTick(function() {
+					promise.error('test error');
+				});
+			},
+			object: function(test) {
+				test.expect(2);
+				var promise = new Promise(function(err, value) {
+					test.equal("{ value: 'test error' }", err.message);
+					test.equal(null, value);
+					test.done();
+				});
+				process.nextTick(function() {
+					promise.error({
+						value: 'test error'
+					});
+				});
+			}
 		},
 		type: function(test) {
 			test.expect(2);
