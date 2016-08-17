@@ -1,5 +1,6 @@
 var MySquirrel = require('./lib/mysquirrel.js');
 var Schema = require('./lib/schema.js');
+var Promise = require('./lib/promise.js');
 var async = require('async');
 
 exports.createConnection = function(arg) {
@@ -33,3 +34,4 @@ exports.model = function(name, schema) {
 };
 
 exports.Schema = Schema;
+exports.Promise = Promise;
