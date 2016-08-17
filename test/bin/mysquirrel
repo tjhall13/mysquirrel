@@ -1,0 +1,29 @@
+#!/usr/bin/env nodejs
+
+var mysquirrel = require('../../index.js');
+var Schema = mysquirrel.Schema;
+
+var userSchema = new Schema({
+  name: { type: String, required: true },
+  age: Number,
+  birthday: { type: Date, default: Date.now }
+});
+
+var User = mysquirrel.model('User', userSchema);
+
+mysquirrel.connect('mysql://trevor:soccer13[husker@localhost/test_db', function(err) {
+  if(err) {
+    console.error(err.message);
+    console.log('model', err.model);
+    console.log('database', err.database);
+  } else {
+    User.find({ name: 'Trevor Hall' }, function(err, user) {
+      if(err) {
+        console.error(err);
+      } else {
+        console.log(user);
+      }
+      mysquirrel.end();
+    });
+  }
+});

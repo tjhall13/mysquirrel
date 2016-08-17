@@ -1,0 +1,9 @@
+# test
+discoverage.json
+
+# node
+node_modules/
+
+# build
+.tmp/
+lib-cov/

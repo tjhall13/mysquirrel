@@ -1,0 +1,38 @@
+{
+  "name": "mysquirrel",
+  "version": "0.2.0",
+  "description": "MySquirrel is a MySQL object modeling tool designed to work in an asynchronous environment.",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt nodeunit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjhall13/mysquirrel.git"
+  },
+  "keywords": [
+    "MySQL",
+    "mongoose",
+    "squirrel",
+    "mysquirrel"
+  ],
+  "author": "Trevor Hall",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjhall13/mysquirrel/issues"
+  },
+  "homepage": "https://github.com/tjhall13/mysquirrel#readme",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-contrib-nodeunit": "^1.0.0",
+    "grunt-sloc": "0.7.0",
+    "proxyquire": "^1.7.3",
+    "xerox": "^0.2.0"
+  },
+  "dependencies": {
+    "async": "^1.5.2",
+    "mpromise": "^0.5.5",
+    "mysql": "^2.9.0"
+  }
+}

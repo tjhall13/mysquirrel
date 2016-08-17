@@ -1,0 +1,9 @@
+# development
+Gruntfile.js
+discoverage.json
+test/
+lib-cov/
+.tmp/
+
+# npm
+.npmignore

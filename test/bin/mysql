@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+var mysql = require('mysql');
+
+var connection = mysql.createConnection('mysql://trevor:soccer13[husker@localhost/test');
+connection.query{ sql: 'SELECT ?? FROM Business WHERE Business.name = ?;',
+  nestTables: '.',
+  values: [ [ 'Business._id', 'Business.name' ], 'Universe' ] }
+, function(err, data) {
+	console.error(err);
+	console.log(data);
+
+	connection.end();
+});
