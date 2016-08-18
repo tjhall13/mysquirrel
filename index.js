@@ -4,7 +4,7 @@ var Promise = require('./lib/promise.js');
 var async = require('async');
 
 exports.createConnection = function(arg) {
-	return new MySquirrel(arg);
+	return new MySquirrel(arg).init();
 };
 
 exports.connect = function(arg, callback) {
@@ -17,6 +17,7 @@ exports.connect = function(arg, callback) {
 		if(callback) callback(err);
 		callback = null;
 	});
+	connection.init();
 };
 
 exports.end = function() {
