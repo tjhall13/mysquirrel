@@ -3,11 +3,15 @@ var Schema = require('./lib/schema.js');
 var Promise = require('./lib/promise.js');
 var async = require('async');
 
-exports.createConnection = function(arg) {
-	return new MySquirrel(arg).init();
+exports.createConnection = function(arg, options) {
+	return new MySquirrel(arg).init(options);
 };
 
-exports.connect = function(arg, callback) {
+exports.connect = function(arg, options, callback) {
+	if(typeof options == 'function') {
+		callback = options;
+		options = { };
+	}
 	var connection = new MySquirrel(arg);
 	connection.on('open', function() {
 		exports.connection = connection;
@@ -17,7 +21,7 @@ exports.connect = function(arg, callback) {
 		if(callback) callback(err);
 		callback = null;
 	});
-	connection.init();
+	connection.init(options);
 };
 
 exports.end = function() {

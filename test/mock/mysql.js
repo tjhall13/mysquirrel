@@ -3,6 +3,7 @@ var Xerox = require('xerox');
 var Connection = new Xerox('Connection');
 
 Connection.copy(null, 'getConnection').callback(null, new Xerox.documents.Connection());
+Connection.copy(null, 'end').callback(null);
 
 module.exports = {
 	proxy: {
