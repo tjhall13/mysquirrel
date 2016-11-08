@@ -16,62 +16,63 @@ function equal(test) {
 	};
 }
 
-var Model, Reference;
+var testSchema = new Schema({
+	_id: Schema.Types.ObjectId,
+	name: String,
+	references: [{ type: Schema.Types.ObjectId, ref: 'Reference' }],
+	joins: [{ type: Schema.Types.ObjectId, ref: 'Join' }]
+});
+
+var joinSchema = new Schema({
+	_id: Schema.Types.ObjectId,
+	value: Number,
+	tests: [{ type: Schema.Types.ObjectId, ref: 'Test' }]
+});
+
+var referenceSchema = new Schema({
+	_id: Schema.Types.ObjectId,
+	value: Number,
+	test: { type: Schema.Types.ObjectId, ref: 'Test' }
+});
+
+var Test = mysquirrel.model('Test', testSchema);
+var Join = mysquirrel.model('Join', joinSchema);
+var Reference = mysquirrel.model('Reference', referenceSchema);
 
 module.exports = {
+	setUp: function(done) {
+		mysquirrel.connect('mysql://user:pass@localhost/test', { verbose: false });
+		done();
+	},
 	save: {
 		array: {
-			setUp: function(done) {
-				var modelSchema = new Schema({
-					_id: Schema.Types.ObjectId,
-					name: String,
-					reference: [{ type: Schema.Types.ObjectId, ref: 'Reference' }],
-					join: [{ type: Schema.Types.ObjectId, ref: 'Join' }]
-				});
-
-				var referenceSchema = new Schema({
-					_id: Schema.Types.ObjectId,
-					value: Number,
-					model: { type: Schema.Types.ObjectId, ref: 'Model' }
-				});
-
-				var joinSchema = new Schema({
-					_id: Schema.Types.ObjectId,
-					value: Number,
-					model: [{ type: Schema.Types.ObjectId, ref: 'Model' }]
-				});
-
-				Model = mysquirrel.model('Model', modelSchema);
-				Reference = mysquirrel.model('Reference', referenceSchema);
-				Join = mysquirrel.model('Join', joinSchema);
-
-				mysquirrel.connect('mysql://user:pass@localhost/test', { verbose: true });
-				done();
-			},
-			delete: {
+			create: {
 				reference: function(test) {
 					mysql.mock(equal(test), 'query')
 						.callback(null, [
-							{ 'Model._id': 1, 'Model.name': 'Test' }
+							{ 'Test._id': 1, 'Test.name': 'Test' }
 						])
 						.then()
 						.callback(null, [
-							{ 'Reference._id': 1, 'Reference.model': 1, 'Reference.value': 10, 'Model._id': 1 },
-							{ 'Reference._id': 2, 'Reference.model': 1, 'Reference.value': 20, 'Model._id': 1 },
-							{ 'Reference._id': 3, 'Reference.model': 1, 'Reference.value': 30, 'Model._id': 1 }
+							{ 'Reference._id': 1, 'Reference.test': 1, 'Reference.value': 10, 'Test._id': 1 },
+							{ 'Reference._id': 2, 'Reference.test': 1, 'Reference.value': 20, 'Test._id': 1 },
+							{ 'Reference._id': 3, 'Reference.test': 1, 'Reference.value': 30, 'Test._id': 1 }
 						])
 						.then()
-						.callback(null);
+						.callback(null, { insertId: 4 });
 
-					Model.findById(1).populate('reference').exec(function(err, doc) {
+					Test.findById(1).populate('references').exec(function(err, doc) {
 						test.equal(err, null);
 						test.ok(doc);
 
-						doc.reference.splice(1, 1);
-						doc.markModified('reference');
+						doc.references.push(
+							new Reference({ value: 40 })
+						);
+						doc.markModified('references');
 
-						doc.save(function(err) {
+						doc.save(function(err, doc) {
 							test.equal(err, null);
+							test.equal(doc.references[3].id, 4);
 							test.done();
 						});
 					});
@@ -79,26 +80,87 @@ module.exports = {
 				join: function(test) {
 					mysql.mock(equal(test), 'query')
 						.callback(null, [
-							{ 'Model._id': 1, 'Model.name': 'Test' }
+							{ 'Test._id': 1, 'Test.name': 'Test' }
 						])
 						.then()
 						.callback(null, [
-							{ 'Join._id': 1, 'Join.value': 10, 'Model._id': 1 },
-							{ 'Join._id': 2, 'Join.value': 20, 'Model._id': 1 },
-							{ 'Join._id': 3, 'Join.value': 30, 'Model._id': 1 }
+							{ 'Join._id': 1, 'Join.value': 10, 'Test._id': 1 },
+							{ 'Join._id': 2, 'Join.value': 20, 'Test._id': 1 },
+							{ 'Join._id': 3, 'Join.value': 30, 'Test._id': 1 }
+						])
+						.then()
+						.callback(null, { insertId: 4 });
+
+					Test.findById(1).populate('joins').exec(function(err, doc) {
+						test.equal(err, null);
+						test.ok(doc);
+
+						doc.joins.push(
+							new Join({ value: 40 })
+						);
+						doc.markModified('joins');
+
+						doc.save(function(err, doc) {
+							test.equal(err, null);
+							test.equal(doc.joins[3].id, 4);
+							test.done();
+						});
+					});
+				}
+			},
+			delete: {
+				reference: function(test) {
+					mysql.mock(equal(test), 'query')
+						.callback(null, [
+							{ 'Test._id': 1, 'Test.name': 'Test' }
+						])
+						.then()
+						.callback(null, [
+							{ 'Reference._id': 1, 'Reference.test': 1, 'Reference.value': 10, 'Test._id': 1 },
+							{ 'Reference._id': 2, 'Reference.test': 1, 'Reference.value': 20, 'Test._id': 1 },
+							{ 'Reference._id': 3, 'Reference.test': 1, 'Reference.value': 30, 'Test._id': 1 }
 						])
 						.then()
 						.callback(null);
 
-					Model.findById(1).populate('join').exec(function(err, doc) {
+					Test.findById(1).populate('references').exec(function(err, doc) {
 						test.equal(err, null);
 						test.ok(doc);
 
-						doc.join.splice(1, 1);
-						doc.markModified('join');
+						doc.references.splice(1, 1);
+						doc.markModified('references');
 
 						doc.save(function(err) {
 							test.equal(err, null);
+							test.equal(doc.references[1].id, 3);
+							test.done();
+						});
+					});
+				},
+				join: function(test) {
+					mysql.mock(equal(test), 'query')
+						.callback(null, [
+							{ 'Test._id': 1, 'Test.name': 'Test' }
+						])
+						.then()
+						.callback(null, [
+							{ 'Join._id': 1, 'Join.value': 10, 'Test._id': 1 },
+							{ 'Join._id': 2, 'Join.value': 20, 'Test._id': 1 },
+							{ 'Join._id': 3, 'Join.value': 30, 'Test._id': 1 }
+						])
+						.then()
+						.callback(null);
+
+					Test.findById(1).populate('joins').exec(function(err, doc) {
+						test.equal(err, null);
+						test.ok(doc);
+
+						doc.joins.splice(1, 1);
+						doc.markModified('joins');
+
+						doc.save(function(err, doc) {
+							test.equal(err, null);
+							test.equal(doc.joins[1].id, 3);
 							test.done();
 						});
 					});
