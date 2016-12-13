@@ -44,6 +44,27 @@ module.exports = {
 		mysquirrel.connect('mysql://user:pass@localhost/test', { verbose: false });
 		done();
 	},
+	populate: function(test) {
+		mysql.mock(equal(test), 'query')
+			.callback(null, [
+				{ 'Reference._id': 1, 'Reference.value': 10, 'Reference.test': 1 },
+				{ 'Reference._id': 2, 'Reference.value': 20, 'Reference.test': null }
+			])
+			.then()
+			.callback(null, [
+				{ 'Test._id': 1, 'Test.name': 'Test' }
+			]);
+
+		Reference.find({ }).exec(function(err, docs) {
+			Test.populate(docs, { path: 'test' }, function(err, docs) {
+				test.equal(err, null);
+				test.equal(docs.length, 2);
+				test.notEqual(docs[0].test, null);
+				test.equal(docs[1].test, null);
+				test.done();
+			});
+		});
+	},
 	save: {
 		array: {
 			create: {
@@ -108,8 +129,8 @@ module.exports = {
 					});
 				}
 			},
-		  update: {
-		    reference: function(test) {
+			update: {
+				reference: function(test) {
 					mysql.mock(equal(test), 'query')
 						.callback(null, [
 							{ 'Test._id': 1, 'Test.name': 'Test' }
@@ -127,21 +148,21 @@ module.exports = {
 						test.equal(err, null);
 						test.ok(doc);
 
-            doc.references.forEach(function(reference) {
-              reference.value = reference.value / 2;
-            });
+						doc.references.forEach(function(reference) {
+							reference.value = reference.value / 2;
+						});
 						doc.markModified('references');
 
-            doc.save(function(err, doc) {
-					    test.equal(err, null);
-					    test.equal(doc.references[0].value, 5);
-					    test.equal(doc.references[1].value, 10);
-					    test.equal(doc.references[2].value, 15);
-					    test.done();
-            });
-          });
-	      },
-	      join: function(test) {
+						doc.save(function(err, doc) {
+							test.equal(err, null);
+							test.equal(doc.references[0].value, 5);
+							test.equal(doc.references[1].value, 10);
+							test.equal(doc.references[2].value, 15);
+							test.done();
+						});
+					});
+				},
+				join: function(test) {
 					mysql.mock(equal(test), 'query')
 						.callback(null, [
 							{ 'Test._id': 1, 'Test.name': 'Test' }
@@ -159,21 +180,21 @@ module.exports = {
 						test.equal(err, null);
 						test.ok(doc);
 
-            doc.joins.forEach(function(join) {
-              join.value = join.value / 2;
-            });
+						doc.joins.forEach(function(join) {
+							join.value = join.value / 2;
+						});
 						doc.markModified('joins');
 
 						doc.save(function(err, doc) {
 							test.equal(err, null);
-					    test.equal(doc.joins[0].value, 5);
-					    test.equal(doc.joins[1].value, 10);
-					    test.equal(doc.joins[2].value, 15);
+						test.equal(doc.joins[0].value, 5);
+						test.equal(doc.joins[1].value, 10);
+						test.equal(doc.joins[2].value, 15);
 							test.done();
 						});
 					});
-        }
-	    },
+				}
+			},
 			delete: {
 				reference: function(test) {
 					mysql.mock(equal(test), 'query')
